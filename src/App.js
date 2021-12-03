@@ -35,7 +35,7 @@ const App = ()  => {
             : null}
           {(success) ? 
             <Grid item xs = {12}>
-              <Alert style = {{width: '100%', padding: 0}} severity="success">DDos attack was successfull</Alert>
+              <Alert style = {{width: '100%', padding: 0}} severity="success">DDos attack was successfully sent</Alert>
             </Grid>
             : null}
           <Grid item xs = {6}>
@@ -48,6 +48,7 @@ const App = ()  => {
                 label = "Attack Type"
                 onChange = {(e) => setType(e.target.value)}
               >
+                 <MenuItem value = 'slowloris'>Slowloris</MenuItem> 
                 <MenuItem value = 'udp'>UDP</MenuItem>
                 <MenuItem value = 'icmp'>ICMP</MenuItem> 
                 <MenuItem value = 'tcp'>TCP</MenuItem> 
